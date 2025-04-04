@@ -42,7 +42,6 @@ services:
     container_name: phpmyadmin
     image: phpmyadmin/phpmyadmin:latest
     environment:
-      # --- THIS IS THE FIX ---
       # Connect to the 'mysql' service name on the Docker network
       PMA_HOST: mysql
       # PMA_PORT: 3306 # Port defaults to 3306, so this is optional unless mysql runs on a different port *inside* its container
