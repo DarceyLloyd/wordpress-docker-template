@@ -1,0 +1,66 @@
+services:
+
+  mysql:
+    container_name: mysql
+    build:
+      context: .
+      dockerfile: Dockerfile.mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "true" # Good practice to quote env vars
+    ports:
+      # Maps container port 3306 to host's 127.0.0.1:3306
+      # Only connections from the host machine via 127.0.0.1 will work
+      - "127.0.0.1:3306:3306"
+    restart: on-failure:5
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+      # - ./my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./initdb:/docker-entrypoint-initdb.d
+    networks:
+      - hh-net
+
+  server:
+    container_name: server
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    ports:
+      # Maps container ports 80/443 to host's 127.0.0.1:80/443
+      - "127.0.0.1:80:80"
+      - "127.0.0.1:443:443"
+    restart: on-failure:5
+    depends_on:
+      - mysql # Ensures mysql container starts first, but not necessarily ready
+    volumes:
+      - ./server:/var/www
+    networks:
+      - hh-net
+    # If the 'server' container needs to connect to mysql,
+    # it should use 'mysql:3306' as the host/port.
+
+  phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin/phpmyadmin:latest
+    environment:
+      # --- THIS IS THE FIX ---
+      # Connect to the 'mysql' service name on the Docker network
+      PMA_HOST: mysql
+      # PMA_PORT: 3306 # Port defaults to 3306, so this is optional unless mysql runs on a different port *inside* its container
+      PMA_USER: root
+      PMA_PASSWORD: "" # Corresponds to MYSQL_ALLOW_EMPTY_PASSWORD
+      MYSQL_ROOT_PASSWORD: "" # Often needed for PMA setup too
+      PMA_ARBITRARY: 1
+      PHP_UPLOAD_MAX_FILESIZE: 512M
+      PHP_MAX_INPUT_VARS: 5000
+    restart: always
+    ports:
+      # Maps container port 80 to host's 127.0.0.2:80
+      - "127.0.0.2:80:80"
+    depends_on:
+      - mysql # Ensures mysql container starts first
+    networks:
+      - hh-net
+
+networks:
+  hh-net:
+    # driver: bridge # Default driver is bridge, usually don't need to specify

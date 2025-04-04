@@ -1,0 +1,13 @@
+{
+  "name": "aftc-docker-php8.4-wordpress-template",
+  "version": "0.1.0",
+  "description": "```\r The docker files here are for development environments not production environments. DO NOT USE IN PRODUCTION AND MAKE SURE YOU DONT UPLOAD THEM!\r ```",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Darcey Lloyd",
+  "license": "Proprietary",
+  "copyright": "Copyright © 2025 AFTC LTD. All rights reserved."
+}
